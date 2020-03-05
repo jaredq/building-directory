@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="adminApp">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="content-type" content="text/html; charset=utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="keywords" content="Building Directory">
+        <meta name="description" content="Building Directory">
+        <meta name="author" content="jaredqin@gmail.com">
+        <title>Administration console</title>
+        <link href="css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
+        <link href="admin/main.css" rel="stylesheet" type="text/css" >
+
+        <script src="js/jquery-1.11.1.min.js" type="text/javascript"></script>
+        <script src="js/angular-1.2.26.min.js" type="text/javascript"></script>
+        <script src="js/angular-sanitize-1.2.26.min.js" type="text/javascript"></script>
+        <script src="js/angular-file-upload.js" type="text/javascript"></script>
+        <script src="admin/main.js" type="text/javascript"></script>
+        <script src="admin/controllers.js" type="text/javascript"></script>
+
+
+        <script type="text/javascript">
+
+            $(document).ready(function () {
+
+            });
+
+        </script>
+
+    </head>
+    <body ng-controller="adminCtrl">
+
+        <div id="login" class="container" ng-show="showLoginOrConsole">
+
+            <form class="form-signin" role="form">
+                <h2 class="form-signin-heading">Please sign in</h2>
+                <input type="text" class="form-control" placeholder="Username" required autofocus ng-model="loginUsername">
+                <input type="password" class="form-control" placeholder="Password" required ng-model="loginPassword">
+                <h4><span class="label label-warning">{{loginResultMessage}}</span></h4>
+                <button class="btn btn-lg btn-primary btn-block" type="submit" ng-click="login()">Sign in</button>
+            </form>
+
+        </div> <!-- /login -->
+
+        <div id="console" class="container" ng-show="!showLoginOrConsole">
+            <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+                <div class="container">
+                    <div class="navbar-header">
+                        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                            <span class="sr-only">Toggle navigation</span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </button>
+                        <a class="navbar-brand" href="#" onclick="return false;">Administration Console</a>
+                    </div>
+                    <div id="navbar" class="navbar-collapse collapse">
+                        <ul class="nav navbar-nav">
+                            <li><a href="#" onclick="return false;" ng-click="showWhichConsole = 'comgt'">Company</a></li>
+                            <li><a href="#" onclick="return false;" ng-click="showWhichConsole = 'setting'">Setting</a></li>
+                        </ul>
+                        <ul class="nav navbar-nav navbar-right">
+                            <li class="active"><a href="#" onclick="return false;">{{username}}</a></li>
+                            <li><a href="#" onclick="return false;" ng-click="logout()">Sign out</a></li>
+                        </ul>
+                    </div><!--/.nav-collapse -->
+                </div>
+            </nav>
+
+            <div id="comgt" class="container" ng-show="showWhichConsole === 'comgt'">
+                <h2 class="form-comgt-heading">Company</h2>
+<!--                <div class="btn-group"><button type="button" class="btn btn-success" ng-click="preCreateCo()">Create</button></div>-->
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Sort Number</th>
+                                <th>Company Name</th>
+                                <th>Level(s)</th>
+                                <th>Lift Bank</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="co in companies">
+                                <td>{{co.company_id}}</td>
+                                <td>{{co.sort_number}}</td>
+                                <td><a  ng-click="showCo(co)">{{co.name}}</a></td>
+                                <td>{{co.levels}}</td>
+                                <td>{{co.lift_bank}}</td>
+                                <td><div class="btn-group">
+                                        <button type="button" class="btn btn-primary" ng-click="preModifyCo(co)">Modify</button>
+                                        <button type="button" class="btn btn-danger" ng-click="preRemoveCo(co)">Remove</button>
+                                    </div></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </div> <!-- /comgt -->
+
+            <div id="cocreate" class="container" ng-show="showWhichConsole === 'cocreate'">
+                <h2 class="form-comgt-heading">Create company</h2>
+                <div class="btn-group"><button type="button" class="btn btn-success" ng-click="showComgt()">Back</button></div>
+                <form class="form-setting" role="form">
+                    <div class="input-group">
+                        <span class="input-group-addon">*Sort number (0~9999):</span>
+                        <input type="text" class="form-control" ng-model="company.sort_number" required maxlength="4" min="0" max="9999">
+                    </div>
+                    <div class="input-group">
+                        <span class="input-group-addon">*Company:</span>
+                        <input type="text" class="form-control" ng-model="company.name" required maxlength="100">
+                    </div>
+                    <div class="input-group">
+                        <span class="input-group-addon">Small logo (200 x 200):</span>
+                        <input type="text" class="form-control" ng-model="company.small_logo_path" maxlength="100">
+                        <input id="uploadSmallLogoFileCreate" type="file" ng-file-select="onSelectSmallLogoFileCreate($files)" onclick="this.value = null" accept="image/*">
+                        <span class="label label-warning">{{uploadSmallLogoFileCreateResultMessage}}</span>
+                    </div>
+                    <div class="input-group">
+                        <span class="input-group-addon">Large logo (320 x 310):</span>
+                        <input type="text" class="form-control" ng-model="company.large_logo_path" maxlength="100">
+                        <input id="uploadLargeLogoFileCreate" type="file" ng-file-select="onSelectLargeLogoFileCreate($files)" onclick="this.value = null" accept="image/*">
+                        <span class="label label-warning">{{uploadLargeLogoFileCreateResultMessage}}</span>
+                    </div>
+                    <div class="input-group">
+                        <span class="input-group-addon">*Level(s):</span>
+                        <input type="text" class="form-control" ng-model="company.levels" required maxlength="20">
+                    </div>
+                    <div class="input-group">
+                        <span class="input-group-addon">*Lift bank:</span>
+                        <div class="radio">
+                            <label><input type="radio" ng-model="company.lift_bank" value="F">Front</label>
+                            <label><input type="radio" ng-model="company.lift_bank" value="R">Right</label>
+                            <label><input type="radio" ng-model="company.lift_bank" value="B">Back</label>
+                            <label><input type="radio" ng-model="company.lift_bank" value="L">Left</label>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <span class="input-group-addon">Phone:</span>
+                        <input type="text" class="form-control" ng-model="company.phone" maxlength="50">
+                    </div>
+                    <div class="input-group">
+                        <span class="input-group-addon">Email:</span>
+                        <input type="text" class="form-control" ng-model="company.email" maxlength="100">
+                    </div>
+                    <div class="input-group">
+                        <span class="input-group-addon">Website:</span>
+                        <input type="text" class="form-control" ng-model="company.website" maxlength="100">
+                    </div>
+                    <div class="input-group">
+                        <span class="input-group-addon">Information:</span>
+                        <textarea type="text" class="form-control" ng-model="company.information" rows="10"></textarea>
+                    </div>
+
+
+                    <h4><span class="label label-warning">{{createcoResultMessage}}</span></h4>
+                    <button class="btn btn-lg btn-primary btn-block" type="submit" ng-click="createCo(company)">Save</button>
+                </form>
+            </div> <!-- /cocreate -->
+
+            <div id="comodify" class="container" ng-show="showWhichConsole === 'comodify'">
+                <h2 class="form-comgt-heading">Modify company</h2>
+                <div class="btn-group"><button type="button" class="btn btn-success" ng-click="showComgt()">Back</button></div>
+                <form class="form-setting" role="form">
+                    <div class="input-group">
+                        <span class="input-group-addon">#</span>
+                        <input type="text" class="form-control" ng-model="company.company_id" readonly>
+                    </div>
+                    <div class="input-group">
+                        <span class="input-group-addon">*Sort number (0~9999):</span>
+                        <input type="text" class="form-control" ng-model="company.sort_number" required maxlength="4" min="0" max="9999">
+                    </div>
+                    <div class="input-group">
+                        <span class="input-group-addon">*Company:</span>
+                        <input type="text" class="form-control" ng-model="company.name" required maxlength="100">
+                    </div>
+                    <div class="input-group">
+                        <span class="input-group-addon">Small logo (200 x 200):</span>
+                        <input type="text" class="form-control" ng-model="company.small_logo_path" maxlength="100">
+                        <input id="uploadSmallLogoFileModify" type="file" ng-file-select="onSelectSmallLogoFileModify($files)" onclick="this.value = null" accept="image/*">
+                        <span class="label label-warning">{{uploadSmallLogoFileModifyResultMessage}}</span>
+                    </div>
+                    <div class="input-group">
+                        <span class="input-group-addon">Large logo (320 x 310):</span>
+                        <input type="text" class="form-control" ng-model="company.large_logo_path" maxlength="100">
+                        <input id="uploadLargeLogoFileModify" type="file" ng-file-select="onSelectLargeLogoFileModify($files)" onclick="this.value = null" accept="image/*">
+                        <span class="label label-warning">{{uploadLargeLogoFileModifyResultMessage}}</span>
+                    </div>
+                    <div class="input-group">
+                        <span class="input-group-addon">*Level(s):</span>
+                        <input type="text" class="form-control" ng-model="company.levels" required maxlength="20">
+                    </div>
+                    <div class="input-group">
+                        <span class="input-group-addon">*Lift bank:</span>
+                        <div class="radio">
+                            <label><input type="radio" ng-model="company.lift_bank" value="F">Front</label>
+                            <label><input type="radio" ng-model="company.lift_bank" value="R">Right</label>
+                            <label><input type="radio" ng-model="company.lift_bank" value="B">Back</label>
+                            <label><input type="radio" ng-model="company.lift_bank" value="L">Left</label>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <span class="input-group-addon">Phone:</span>
+                        <input type="text" class="form-control" ng-model="company.phone" maxlength="50">
+                    </div>
+                    <div class="input-group">
+                        <span class="input-group-addon">Email:</span>
+                        <input type="text" class="form-control" ng-model="company.email" maxlength="100">
+                    </div>
+                    <div class="input-group">
+                        <span class="input-group-addon">Website:</span>
+                        <input type="text" class="form-control" ng-model="company.website" maxlength="100">
+                    </div>
+                    <div class="input-group">
+                        <span class="input-group-addon">Information:</span>
+                        <textarea type="text" class="form-control" ng-model="company.information" rows="10"></textarea>
+                    </div>
+
+                    <h4><span class="label label-warning">{{modifycoResultMessage}}</span></h4>
+                    <button class="btn btn-lg btn-primary btn-block" type="submit" ng-click="modifyCo(company)">Save</button>
+                </form>
+
+            </div> <!-- /comodify -->
+
+            <div id="coremove" class="container" ng-show="showWhichConsole === 'coremove'">
+                <h2 class="form-comgt-heading">Remove company</h2>
+                <div class="btn-group"><button type="button" class="btn btn-success" ng-click="showComgt()">Back</button></div>
+                <form class="form-setting" role="form">
+                    <div class="input-group">
+                        <span class="input-group-addon">#</span>
+                        <input type="text" ng-model="company.company_id" readonly>
+                    </div>
+                    <div class="input-group">
+                        <span class="input-group-addon">Company:</span>
+                        <input type="text" ng-model="company.name" readonly>
+                    </div>
+                    <div class="input-group">
+                        <span class="input-group-addon">Level(s):</span>
+                        <input type="text" ng-model="company.levels" readonly>
+                    </div>
+
+                    <h4><span class="label label-warning">{{removecoResultMessage}}</span></h4>
+                    <button class="btn btn-lg btn-primary btn-block" type="submit" ng-click="removeCo(company)">Remove</button>
+                </form>
+
+            </div> <!-- /coremove -->
+
+            <div id="setting" class="container" ng-show="showWhichConsole === 'setting'">
+                <h2 class="form-setting-heading">Setting</h2>
+                <form class="form-setting" role="form">
+                    <h3 class="form-setting-heading">Account</h3>
+                    <input type="text" name="username" class="form-control" placeholder="Username" required autofocus
+                           ng-model="oldUsername" ng-trim="true" ng-minlength="5" ng-maxlength="30">
+                    <input type="password" name="password" class="form-control" placeholder="Password" required
+                           ng-model="oldPassword" ng-trim="true" ng-minlength="5" ng-maxlength="30">
+                    <input type="text" name="usernamenew" class="form-control" placeholder="New Username" required
+                           ng-model="newUsername" ng-trim="true" ng-minlength="5" ng-maxlength="30">
+                    <input type="password" name="passwordnew" class="form-control" placeholder="New Password" required
+                           ng-model="newPassword" ng-trim="true" ng-minlength="5" ng-maxlength="30">
+                    <input type="password" name="passwordnew2" class="form-control" placeholder="New Password Again" required
+                           ng-model="newPasswordAgain" ng-trim="true" ng-minlength="5" ng-maxlength="30">
+                    <h4><span class="label label-warning">{{saveaccountResultMessage}}</span></h4>
+                    <button class="btn btn-lg btn-primary btn-block" type="submit" ng-click="saveAccount()">Save</button>
+                </form>
+            </div> <!-- /setting -->
+
+        </div> <!-- /console -->
+
+        <script src="js/bootstrap.min.js" type="text/javascript"></script>
+    </body>
+</html>

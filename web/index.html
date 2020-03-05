@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="indexApp">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="content-type" content="text/html; charset=utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="keywords" content="Building Directory">
+        <meta name="description" content="Building Directory">
+        <meta name="author" content="jaredqin@gmail.com">
+        <title>520 Demo Street</title>
+        <link href="css/jquery.mobile-1.4.4.min.css" rel="stylesheet" type="text/css"/>
+        <link rel="stylesheet" type="text/css" href="css/global.css" >
+        <link rel="stylesheet" type="text/css" href="index/main.css" >
+        <script src="js/jquery-1.11.1.min.js" type="text/javascript"></script>
+        <script src="js/jquery.mobile-1.4.4.min.js" type="text/javascript"></script>
+        <script src="js/angular-1.2.26.min.js" type="text/javascript"></script>
+        <script src="js/angular-sanitize-1.2.26.min.js" type="text/javascript"></script>
+        <script src="js/angular-touch-1.2.26.min.js" type="text/javascript"></script>
+        <script src="index/main.js" type="text/javascript"></script>
+        <script src="index/controllers.js" type="text/javascript"></script>
+    </head>
+    <body unselectable="on" ng-controller="indexCtrl" ng-mousemove="resetIdleTime()" oncontextmenu="return false">
+        <section>
+            <div id="main_frame">
+                <div id="welcome" class="main_block" ng-click="showHome()">
+                    <img src="index/welcome.png" alt="Welcome" height="1920" width="1080" draggable="false" onload="waterRipple(this);" />
+                </div>
+
+                <div id="mainbox" style="display: none;" class="main_block">
+                    <div class="header1_block home_link_block">
+                        <a id="rba-welcomelink1" ng-click="showWelcome(); playClickSound();"><div id="rbb-welcomelink1" class="rb-welcomelink rb-end-welcomelink"></div></a>
+                        <a id="rba-homelink1" ng-click="showHome(); playClickSound();"><div id="rbb-homelink1" class="rb-homelink rb-end-homelink"></div></a>
+                    </div>
+                    <div class="header2_block">
+                        <div class="bldmgt_link_block">
+                            <a id="rba-bldmgtlink1" ng-click="showBldmgt(); playClickSound();"><div id="rbb-bldmgtlink1" class="rb-bldmgtlink rb-end-bldmgtlink"></div></a>
+                        </div>
+                        <div id="ltb-1" class="live_time_block"></div>
+                    </div>
+
+                    <div id="show_sort_links" ng-click="showSortLinks()" ng-swipe-left="showSortLinks()">
+                    </div>
+
+                    <div id="sort_links" ng-click="hideSortLinks()" ng-swipe-right="hideSortLinks()">
+                        <div class="red_link_block">
+                            <div id="rbb-red1" class="round-button rb-end-red" ng-click="showSortByLevel(); playClickSound();"><div class="rb-text">SORT BY LEVEL</div></div>
+                        </div>
+                        <div class="green_link_block">
+                            <div id="rbb-green1" class="round-button rb-end-green" ng-click="showSortByAlphabet(); playClickSound();"><div class="rb-text">SORT BY <span class="rb-text-sm">ALPHABETICAL</span></div></div>
+                        </div>
+                        <div class="blue_link_block">
+                            <div id="rbb-blue1" class="round-button rb-end-blue" ng-click="showSearch(); playClickSound();"><div class="rb-text rb-text-1">SEARCH</div></div>
+                        </div>
+                    </div>
+
+                    <div id="list_icons" style="display: none;" class="submain_block list_icons_block">
+                        <div class="list_companies_block" onscroll="reset_idle_time()">
+                            <div class="animate-repeat company_icon_block" ng-repeat="co in companies| orderBy:'name':false" ng-click="showCompany(co)">
+                                <img src="{{co.small_logo_path}}" alt="{{co.name}}" draggable="false" class="co_small_logo" ng-show="co.small_logo_path !== ''">
+                                <div class="co_small_logo_alt" ng-show="co.small_logo_path === ''"><span class="co_small_logo_alt_text">{{co.name}}</span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="sort_by_level" style="display: none;" class="submain_block sort_by_level_block">
+                        <div id="sort_by_level_container" class="level_company_list_container">
+                            <div class="lcl_col"></div>
+                            <div class="lcl_body" onscroll="reset_idle_time()">
+                                <div class="animate-repeat lcl_row" ng-repeat="co in companies | orderBy:'sort_number':false" ng-click="showCompany(co)">
+                                    <div class="lcl_body_level">{{co.levels}}</div>
+                                    <div class="lcl_body_company">
+                                        <div class="lcl_body_company_icon"><img src="index/U2A_14.png" alt="Information" draggable="false" style="margin-right: 8px;"/></div>
+                                        <div class="lcl_body_company_name"><span class="lcl_body_company_name_text">{{co.name}}</span></div>
+                                    </div>
+                                    <div class="lcl_body_liftbank"><img src="upload/liftbank/{{co.lift_bank}}.png" alt="{{co.lift_bank}}" draggable="false"></div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="sort_by_alphabetical" style="display: none;" class="submain_block sort_by_alphabetical_block">
+
+                        <div id="sort_by_alphabetical_container" class="level_company_list_container">
+                            <div class="lcl_col"></div>
+                            <div class="lcl_body" onscroll="reset_idle_time()">
+                                <div class="animate-repeat lcl_row" ng-repeat="co in filteredCompanyiesA = (companies| regex:'name':'^'+searchAlphabet+'.*$':'gi' | orderBy:'name':false)" ng-click="showCompany(co)">
+                                    <div class="lcl_body_company">
+                                        <div class="lcl_body_company_icon"><img src="index/U2A_14.png" alt="Information" draggable="false" style="margin-right: 8px;"/></div>
+                                        <div class="lcl_body_company_name"><span class="lcl_body_company_name_text">{{co.name}}</span></div>
+                                    </div>
+                                    <div class="lcl_body_level">{{co.levels}}</div>
+                                    <div class="lcl_body_liftbank"><img src="upload/liftbank/{{co.lift_bank}}.png" alt="{{co.lift_bank}}" draggable="false"></div>
+                                </div>
+                                <div ng-hide="filteredCompanyiesA.length" class="no-result-found">No companies found</div>
+                            </div>
+                            <div id="sort_by_alphabetical_show">
+                                <div class="alpha_show">{{(searchAlphabet === ''||searchAlphabet==null)?'All':searchAlphabet}}</div>
+                            </div>
+                            <div id="sort_by_alphabetical_keyboard">
+                                <div class="alpha_keyrow">
+                                    <div id="key_a1" class="alpha_key rb-end-a" ng-click="searchAlphabet = 'A'; playClickSound();"></div>
+                                    <div id="key_b1" class="alpha_key rb-end-b" ng-click="searchAlphabet = 'B'; playClickSound();"></div>
+                                    <div id="key_c1" class="alpha_key rb-end-c" ng-click="searchAlphabet = 'C'; playClickSound();"></div>
+                                    <div id="key_d1" class="alpha_key rb-end-d" ng-click="searchAlphabet = 'D'; playClickSound();"></div>
+                                    <div id="key_e1" class="alpha_key rb-end-e" ng-click="searchAlphabet = 'E'; playClickSound();"></div>
+                                    <div id="key_f1" class="alpha_key rb-end-f" ng-click="searchAlphabet = 'F'; playClickSound();"></div>
+                                    <div id="key_g1" class="alpha_key rb-end-g" ng-click="searchAlphabet = 'G'; playClickSound();"></div>
+                                    <div id="key_h1" class="alpha_key rb-end-h" ng-click="searchAlphabet = 'H'; playClickSound();"></div>
+                                    <div id="key_i1" class="alpha_key rb-end-i" ng-click="searchAlphabet = 'I'; playClickSound();"></div>
+                                    <div id="key_j1" class="alpha_key rb-end-j" ng-click="searchAlphabet = 'J'; playClickSound();"></div>
+                                    <div id="key_k1" class="alpha_key rb-end-k" ng-click="searchAlphabet = 'K'; playClickSound();"></div>
+                                    <div id="key_l1" class="alpha_key rb-end-l" ng-click="searchAlphabet = 'L'; playClickSound();"></div>
+                                    <div id="key_m1" class="alpha_key rb-end-m" ng-click="searchAlphabet = 'M'; playClickSound();"></div>
+                                    <div id="key_n1" class="alpha_key rb-end-n" ng-click="searchAlphabet = 'N'; playClickSound();"></div>
+                                </div>
+                                <div class="alpha_keyrow">
+                                    <div id="key_o1" class="alpha_key rb-end-o" ng-click="searchAlphabet = 'O'; playClickSound();"></div>
+                                    <div id="key_p1" class="alpha_key rb-end-p" ng-click="searchAlphabet = 'P'; playClickSound();"></div>
+                                    <div id="key_q1" class="alpha_key rb-end-q" ng-click="searchAlphabet = 'Q'; playClickSound();"></div>
+                                    <div id="key_r1" class="alpha_key rb-end-r" ng-click="searchAlphabet = 'R'; playClickSound();"></div>
+                                    <div id="key_s1" class="alpha_key rb-end-s" ng-click="searchAlphabet = 'S'; playClickSound();"></div>
+                                    <div id="key_t1" class="alpha_key rb-end-t" ng-click="searchAlphabet = 'T'; playClickSound();"></div>
+                                    <div id="key_u1" class="alpha_key rb-end-u" ng-click="searchAlphabet = 'U'; playClickSound();"></div>
+                                    <div id="key_v1" class="alpha_key rb-end-v" ng-click="searchAlphabet = 'V'; playClickSound();"></div>
+                                    <div id="key_w1" class="alpha_key rb-end-w" ng-click="searchAlphabet = 'W'; playClickSound();"></div>
+                                    <div id="key_x1" class="alpha_key rb-end-x" ng-click="searchAlphabet = 'X'; playClickSound();"></div>
+                                    <div id="key_y1" class="alpha_key rb-end-y" ng-click="searchAlphabet = 'Y'; playClickSound();"></div>
+                                    <div id="key_z1" class="alpha_key rb-end-z" ng-click="searchAlphabet = 'Z'; playClickSound();"></div>
+                                    <div id="key_listall1" class="alpha_key alpha_key2 rb-end-listall" ng-click="searchAlphabet = ''; playClickSound();"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div id="search" style="display: none;" class="submain_block search_block">
+                        <div id="search_container">
+                            <div class="search_condition_block">
+                                <div class="search_keyword_block">
+                                    <input type="text" id="search_keyword" ng-model="searchKey2" ng-change="resetSearchButtonOrResult()">
+                                </div>
+                                <div class="search_link_block" ng-show="searchButtonOrResult">
+                                    <div id="rbb-search" class="round-button search_button rb-end-search"
+                                         ng-click="doSearch(); playClickSound();"><img src="index/search.png" alt="Search" draggable="false"/></div>
+                                </div>
+                            </div>
+
+                            <div class="search_result_list" ng-show="!searchButtonOrResult">
+                                <div class="search_result_list_inner" onscroll="reset_idle_time()">
+                                    <div class="animate-repeat company_icon_block"
+                                         ng-repeat="co in filteredCompanyiesS = (companies| regex:'name':'^'+ (searchKey === '' || searchKey === null ? 'QWERTYUIOPASDFGHJKLZXCVBNM' : searchKey) + '.*$':'gi' | orderBy:'name':false)" ng-click="showCompany(co)">
+                                        <img src="{{co.small_logo_path}}" alt="{{co.name}}" draggable="false" class="co_small_logo" ng-show="co.small_logo_path !== ''">
+                                        <div class="co_small_logo_alt" ng-show="co.small_logo_path === ''"><span class="co_small_logo_alt_text">{{co.name}}</span></div>
+                                    </div>
+                                    <div ng-hide="filteredCompanyiesS.length" class="no-result-found">No companies found</div>
+                                </div>
+                            </div>
+
+                            <div id="search_key_keyboard">
+                                <div class="alpha_keyrow">
+                                    <div id="key_a2" class="alpha_key rb-end-a" ng-click="plusSearchKey('A'); playClickSound();"></div>
+                                    <div id="key_b2" class="alpha_key rb-end-b" ng-click="plusSearchKey('B'); playClickSound();"></div>
+                                    <div id="key_c2" class="alpha_key rb-end-c" ng-click="plusSearchKey('C'); playClickSound();"></div>
+                                    <div id="key_d2" class="alpha_key rb-end-d" ng-click="plusSearchKey('D'); playClickSound();"></div>
+                                    <div id="key_e2" class="alpha_key rb-end-e" ng-click="plusSearchKey('E'); playClickSound();"></div>
+                                    <div id="key_f2" class="alpha_key rb-end-f" ng-click="plusSearchKey('F'); playClickSound();"></div>
+                                    <div id="key_g2" class="alpha_key rb-end-g" ng-click="plusSearchKey('G'); playClickSound();"></div>
+                                    <div id="key_h2" class="alpha_key rb-end-h" ng-click="plusSearchKey('H'); playClickSound();"></div>
+                                    <div id="key_i2" class="alpha_key rb-end-i" ng-click="plusSearchKey('I'); playClickSound();"></div>
+                                    <div id="key_j2" class="alpha_key rb-end-j" ng-click="plusSearchKey('J'); playClickSound();"></div>
+                                    <div id="key_k2" class="alpha_key rb-end-k" ng-click="plusSearchKey('K'); playClickSound();"></div>
+                                    <div id="key_l2" class="alpha_key rb-end-l" ng-click="plusSearchKey('L'); playClickSound();"></div>
+                                    <div id="key_m2" class="alpha_key rb-end-m" ng-click="plusSearchKey('M'); playClickSound();"></div>
+                                    <div id="key_n2" class="alpha_key rb-end-n" ng-click="plusSearchKey('N'); playClickSound();"></div>
+                                </div>
+                                <div class="alpha_keyrow">
+                                    <div id="key_o2" class="alpha_key rb-end-o" ng-click="plusSearchKey('O'); playClickSound();"></div>
+                                    <div id="key_p2" class="alpha_key rb-end-p" ng-click="plusSearchKey('P'); playClickSound();"></div>
+                                    <div id="key_q2" class="alpha_key rb-end-q" ng-click="plusSearchKey('Q'); playClickSound();"></div>
+                                    <div id="key_r2" class="alpha_key rb-end-r" ng-click="plusSearchKey('R'); playClickSound();"></div>
+                                    <div id="key_s2" class="alpha_key rb-end-s" ng-click="plusSearchKey('S'); playClickSound();"></div>
+                                    <div id="key_t2" class="alpha_key rb-end-t" ng-click="plusSearchKey('T'); playClickSound();"></div>
+                                    <div id="key_u2" class="alpha_key rb-end-u" ng-click="plusSearchKey('U'); playClickSound();"></div>
+                                    <div id="key_v2" class="alpha_key rb-end-v" ng-click="plusSearchKey('V'); playClickSound();"></div>
+                                    <div id="key_w2" class="alpha_key rb-end-w" ng-click="plusSearchKey('W'); playClickSound();"></div>
+                                    <div id="key_x2" class="alpha_key rb-end-x" ng-click="plusSearchKey('X'); playClickSound();"></div>
+                                    <div id="key_y2" class="alpha_key rb-end-y" ng-click="plusSearchKey('Y'); playClickSound();"></div>
+                                    <div id="key_z2" class="alpha_key rb-end-z" ng-click="plusSearchKey('Z'); playClickSound();"></div>
+                                    <div id="key_clear2" class="alpha_key alpha_key2 rb-end-clear" ng-click="searchKey2 = ''; resetSearchButtonOrResult(); playClickSound();"></div>
+                                </div>
+                                <div class="alpha_keyrow">
+                                    <div class="alpha_key"></div>
+                                    <div class="alpha_key"></div>
+                                    <div class="alpha_key"></div>
+                                    <div id="key_blank2" class="alpha_key alpha_key6 rb-end-blank" ng-click="plusSearchKey(' '); playClickSound();"></div>
+                                    <div id="key_backspace2" class="alpha_key alpha_key3 rb-end-backspace" ng-click="searchKey2 = backspaceStr(searchKey2); resetSearchButtonOrResult(); playClickSound();"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div id="bldmgt" style="display: none;" class="main_block bldmgt_block">
+                    <div class="cobm_head">
+                        <div id="ltb-2" class="live_time_block_cobm"></div>
+                        <div id="rbb-back1" class="rb-backlink rb-end-backlink" ng-click="showMainbox(); playClickSound();"></div>
+                    </div>
+                    <div class="bldmgt_ll_block">
+                        <div class="bldmgt_logo_block">
+                            <img src="{{bldmgt.logo_path}}" alt="{{bldmgt.name}}" draggable="false" class="co_large_logo" ng-show="bldmgt.logo_path !== ''">
+                            <div class="co_large_logo_alt" ng-show="bldmgt.logo_path === ''"><span class="co_large_logo_alt_text">{{bldmgt.name}}</span></div>
+                        </div>
+                        <div class="bldmgt_lpew_block">
+                            <div class="item_block">
+                                <div class="item_icon_block"><img src="index/U5_07.png" alt="Location" draggable="false"/></div>
+                                <div class="item_text_block">Location: {{bldmgt.location}}</div>
+                            </div>
+
+                            <div class="item_block">
+                                <div class="item_icon_block"><img src="index/U5_16.png" alt="Phone" draggable="false"/></div>
+                                <div class="item_text_block">Phone: {{bldmgt.phone}}</div>
+                            </div>
+
+                            <div class="item_block">
+                                <div class="item_icon_block"><img src="index/U5_18.png" alt=" Email" draggable="false"/></div>
+                                <div class="item_text_block">Email: {{bldmgt.email}}</div>
+                            </div>
+
+                            <div class="item_block">
+                                <div class="item_icon_block"><img src="index/U5_20.png" alt="Website" draggable="false"/></div>
+                                <div class="item_text_block">Website: {{bldmgt.website}}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bldmgt_info_block">
+                        <div class="company_info_label">Company information:</div>
+                        <div class="company_info_text" onscroll="reset_idle_time()" ng-bind-html="bldmgt.about_us"></div>
+                    </div>
+                </div>
+
+                <div id="company" style="display: none;" class="main_block company_block">
+                    <div class="cobm_head">
+                        <div id="ltb-3" class="live_time_block_cobm"></div>
+                        <div id="rbb-back2" class="rb-backlink rb-end-backlink" ng-click="showMainbox(); playClickSound();"></div>
+                    </div>
+                    <div class="company_ll_block">
+                        <div class="company_logo_block">
+                            <img src="{{company.large_logo_path}}" alt="{{company.name}}" draggable="false" class="co_large_logo" ng-show="company.large_logo_path !== ''">
+                            <div class="co_large_logo_alt" ng-show="company.large_logo_path === ''"><span class="co_large_logo_alt_text">{{company.name}}</span></div>
+                        </div>
+                        <div class="company_lpelw_block">
+
+                            <div class="item_block">
+                                <div class="item_icon_block"><img src="index/U5_10.png" alt="Company" draggable="false"/></div>
+                                <div class="item_text_block">Company: {{company.name}}</div>
+                            </div>
+
+                            <div class="item_block">
+                                <div class="item_icon_block"><img src="index/U5_12.png" alt="Lift Bank" draggable="false"/></div>
+                                <div class="item_text_block">Lift Bank: <img src="upload/liftbank/{{company.lift_bank}}.png" alt="{{co.lift_bank}}" draggable="false"></div>
+                            </div>
+
+                            <div class="item_block">
+                                <div class="item_icon_block"><img src="index/U5_14.png" alt="Levels" draggable="false"/></div>
+                                <div class="item_text_block">Levels: {{company.levels}}</div>
+                            </div>
+
+                            <div class="item_block">
+                                <div class="item_icon_block"><img src="index/U5_16.png" alt="Phone" draggable="false"/></div>
+                                <div class="item_text_block">Phone: {{company.phone}}</div>
+                            </div>
+
+                            <div class="item_block">
+                                <div class="item_icon_block"><img src="index/U5_18.png" alt="Email" draggable="false"/></div>
+                                <div class="item_text_block">Email: {{company.email}}</div>
+                            </div>
+
+                            <div class="item_block">
+                                <div class="item_icon_block"><img src="index/U5_20.png" alt="Website" draggable="false"/></div>
+                                <div class="item_text_block">Website: {{company.website}}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="company_info_block">
+                        <div class="company_info_label">Company Information:</div>
+                        <div class="company_info_text" onscroll="reset_idle_time()">
+                            <div class="company_info_content" ng-bind-html="companyInformation"></div>
+                            <div class="animate-repeat company_sub_row" ng-repeat="cosub in companySubs">
+                                <div class="company_sub_logo"><img src="{{cosub.logo_path}}" alt="{{cosub.name}}" draggable="false"/></div>
+                                <div class="company_sub_text"> {{cosub.name}} / Level: {{cosub.levels}}</div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <audio id="click_sound" preload="auto">
+            <source src="index/tock1.wav" type="audio/wav">
+        </audio>
+
+        <audio id="swipe_sound" preload="auto">
+            <source src="index/swipe1.wav" type="audio/wav">
+        </audio>
+
+        <script src="index/ripple.js" type="text/javascript"></script>
+    </body>
+</html>
